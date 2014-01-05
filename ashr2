@@ -1,0 +1,40 @@
+/ashr2(x) = performs a single arthmetic right shift
+/PLEASE NOTE: this method DOES NOT add the 1 to the binary bit by DESIGN.
+/               this is because the 1 that falls off during alignment is at a different location
+/               that the lowest bit.
+/               Also, during overflow protection a 1 does not need to be added if it falls off.
+/               For these reason, I choose to have the 1 added outside of this subroutine.
+
+        ENTRY   ashr2
+        EXTRN   or
+res     RES     1
+negmask RES     1       /mask to fill with 1 on shift
+posmask 0x7FFF          /mask to fill with 0 on shift
+ashr2   loco    1
+        racr    1
+        stod    negmask /negmask = 0x8000
+        lodl    1       /ac = &x
+        pshi
+        pop
+        actf
+        jneg    neg     /if positive, no need to change sign variable
+pos     racr    1       /rotate to right
+        actf
+        lodd    posmask
+        andf            /set high bit to 0
+        jump    done
+neg     racr    1       /rotate to right
+        stod    res
+        loco    res
+        push
+        loco    negmask
+        push
+        call    or      /set first two high bits to 1's
+        insp    2
+done    push            /push in result
+        lodl    2       /grab &x
+        popi            /store result into &x
+        retn
+        END
+
+

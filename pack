@@ -1,0 +1,55 @@
+/pack(&Cr,&Sr) - normalizes and packs result into ac
+        ENTRY   pack
+cnt     RES     1
+res     RES     1
+simask  RES     1
+pack    lodd    (-1)
+        stod    cnt     /initialize count to -1
+        lodd    (0x7FE0)
+        actf            /mask to grab the mantisa + guard bit
+        lodl    2
+        pshi
+        pop             /ac = *Sr
+        andf
+        push            /store just the mantisa
+loop    lodd    cnt
+        addd    (1)
+        stod    cnt
+        subd    (9)
+        jzer    cont    /if count == 9 we ran off the significand (guard bit in highest digit)
+        lodl    0       /ac = Sr
+        racr    15      /left rotate once
+        stol    0
+        jneg    cont    /if 1 in highest bit, our significand is normalized
+        jump    loop    /else rotate again
+cont    lodd    (0x7F80) /mask to grab the manisa (without hidden bit or guard bit)
+        actf
+        pop             /restore result
+        andf            /mask out the highest bit, which is the hidden bit, and guard bit
+        racr    7       /store mantisa (without hidden bit) back to lower order side
+        push            /store result
+        lodl    3       /ac = &Sr
+        pshi
+        pop
+        jpos    skip    /if postive, the sign bit is already 0 in our result
+neg     loco    1
+        racr    1       /signmask = 0x8000
+        addl    0       /add 1 as sign bit
+        stol    0       /store sign bit in result
+skip    lodl    2       /ac = &Cr
+        pshi
+        pop             /ac = *Cr
+        subd    cnt     /subtract the amount of times we shifted left to Cr
+        push
+        loco    0x7F    /characteristic mask
+        actf
+        pop             /restore *Cr
+        andf
+        racr    8       /rotate Cr into right position
+        addl    0       /add characteristic to result
+        insp    1       /clear stack
+        retn
+        END
+ 
+
+

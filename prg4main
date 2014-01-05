@@ -1,0 +1,53 @@
+         /prg4main       
+          EXTRN   inv
+          EXTRN   or
+          EXTRN   fadd
+          EXTRN   ashr2
+x1        0x7D5C
+x2        0x7A33
+x3        0x0b98 
+x4        0x02A3   
+ans1      RES      1
+ans2      RES      1
+ans3      RES      1
+ans4      RES      1
+ans5      RES      1
+ans6      RES      1
+start     loco    4020 
+          swap         
+          loco    x1
+          push
+          call    inv
+          stod    x1     /create data x1=0x82A3
+          stod    ans1
+          loco    ans1
+          push
+          call    ashr2   /make sure ashr2 is working
+          lodd    ans1
+          addd    (1)   
+          stod    ans1  / adding 1 to this answer, because ashr2, does not add 1 by design
+          insp    1
+	  loco    x2
+          push         
+          call    inv
+          stod    x2     /create data x2=0x85CC
+          call    or
+          stod    ans2   /make sure OR is working
+          call    fadd   
+          stod    ans3   /ans3=fadd(x1,x2)
+          loco    x3
+          stol    0
+          call    ashr2   /ashr2 shifts x3 right arthimetically
+          call    fadd   
+          stod    ans4   /ans4=fadd(x1,x3)  
+          loco    x4
+          stol    1
+          call    fadd   
+          stod    ans5   /ans5=fadd(x3,x4)
+          loco    x2
+          stol    0
+          call    fadd
+          stod    ans6   /ans6=fadd(x2,x4)
+          insp    2
+          halt         
+          END     start

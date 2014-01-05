@@ -1,0 +1,13 @@
+/unpC(x) - unpacks the given characeristic and returns it in ac
+        ENTRY   unpC
+        EXTRN   ashr2
+unpC    lodl    1
+        pshi
+        pop
+        actf            /load x
+        lodd    (0x7F00) /character mask
+        andf            /extract the charactistic
+        racr    8       /shift to lower order bits
+        retn            /retn (0000 0000 0000 0xxx xxxx)
+        END
+

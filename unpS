@@ -1,0 +1,19 @@
+/unpS(x) - unpacks the given significand and returns it in ac-
+        ENTRY   unpS
+unpS    lodl    1
+        pshi
+        pop
+        actf            /f = x
+        lodd    (0xFF)  /mantisa mask
+        andf            /extract mantisa
+        racr    10      /store on higher order side, leave room for sign bit and hidden bit
+        addd    (0x4000) /add hidden bit
+        push
+        ftac            /to check sign
+        jpos    done    /if negative, convert to 2's complement
+        loco    0
+        subl    0     /ac = 0 - m[sp] -> sign will be set to 1 in this process
+        stol    0
+done    pop           /ac = (shxx xxxx xx00 0000) where s = sign, h = hidden bit, x = mantisa bits
+        retn
+        END

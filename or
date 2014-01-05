@@ -1,0 +1,19 @@
+/or(x,y) = (x'y')'
+      ENTRY or
+      EXTRN inv
+res   RES   1     /reserved space for call by reference
+or    lodl  1     /ac = &x
+      push
+      call  inv
+      actf        /f = x'
+      lodl  3     /ac = &y
+      push
+      call  inv
+      andf        /ac = x'y'
+      stod  res
+      loco  res
+      push
+      call  inv   /ac = (x'y')'
+      insp  3
+      retn
+      END

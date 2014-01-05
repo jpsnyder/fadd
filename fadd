@@ -1,0 +1,98 @@
+/fadd(x,y)
+        ENTRY   fadd
+        EXTRN   or
+        EXTRN   inv
+        EXTRN   ashr2
+        EXTRN   unpS    /unpack significand
+        EXTRN   unpC    /unpack characteristic
+        EXTRN   align   /align given characteristic by given shift amount
+        EXTRN   pack    /packs the given S and C
+res     RES     1       /reserve spaces used for call by reference
+res2    RES     1
+Sx      RES     1
+Sy      RES     1
+Sr      RES     1       /result signifand
+Cx      RES     1
+Cy      RES     1
+Cr      RES     1       /result characteric
+Cmask   EQU     0x7F00
+fadd    lodl    1
+        push
+        call    unpS    /unpack x's significand
+        stod    Sx
+        call    unpC    /unpack x's characteristic
+        stod    Cx
+        insp    1
+        lodl    2
+        push
+        call    unpS    /unpack y's significand
+        stod    Sy
+        call    unpC    /unpack y's characteristic
+        stod    Cy
+        insp    1
+        lodd    Cx      /compare Cx and Cy
+        subd    Cy      /Cx - Cy
+        jpos    aligny  /if positive align y (Cy <= Cx), else align x
+alignx  push            /first convert difference to positive
+        loco    0
+        subl    0       /ac = 0 - (Cx-Cy)
+        insp    1
+        push            /push in shift amount
+        loco    Sx      /align Sx
+        push
+        lodd    Cy
+        stod    Cr      /set Cy as result characteristic so far
+        jump    cont
+aligny  push            /push in shift amount
+        loco    Sy      /align Sy
+        push
+        lodd    Cx
+        stod    Cr      /set Cx as result characteristic so far
+cont    call    align   /shift the given S the given amount of times
+        insp    2 
+        loco    Sx
+        push
+        call    ashr2   /overlap protect Sx
+        loco    Sy
+        push
+        call    ashr2   /overlap protect Sy
+        insp    2
+        lodd    Cr
+        addd    (1)     /increment Cr
+        stod    Cr
+        lodd    (0x7FF)
+        racr    11      /mask = 0xFFE0, used to remove lower bits from significand, leaving mantisa+ hidden bit + guard bit
+        actf
+        lodd    Sx
+        andf            /mask Sx
+        stod    Sx
+        lodd    Sy
+        andf            /mask Sy
+        stod    Sy
+        addd    Sx      /add Sy + Sx
+        jpos    skip    /if negative, convert to 2's complement
+        push
+        loco    0
+        subl    0       /ac = 0 - m[sp]
+        pop
+        stod    res
+        loco    res
+        push
+        loco    1
+        racr    1       /sign mask = 0x8000
+        stod    res2
+        loco    res2
+        push
+        call    or      /add sign bit back in
+        insp    2
+skip    stod    Sr
+        loco    Sr
+        push
+        loco    Cr
+        push
+        call    pack    /pack(&Cr,&Sr) - normalizes and packs result into ac
+        insp    2
+        retn
+        END
+
+

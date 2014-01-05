@@ -1,0 +1,10 @@
+/inv(x)
+      ENTRY inv
+inv   lodl  1     /load &x
+      pshi
+      loco  0
+      subl  0     /ac = 0 - m[x]
+      subd  (1)   /ac = -m[x] - 1 to get 1's complement form
+      insp  1
+      retn
+      END

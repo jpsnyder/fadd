@@ -1,0 +1,47 @@
+/align(S,n) - shift S, n times  (n is passed by value, S passed by reference) - result stored back in S's address
+        ENTRY   align
+        EXTRN   ashr2
+cnt     RES     1
+plus1   RES     1
+res     RES     1
+align   lodl    2       /grab n
+        stod    cnt
+        lodl    1       /grab &S
+        push            /push in for call ashr2
+        pshi
+        pop
+        jneg    neg     /if neg set plus1 = 0400 (S is offset to left)
+        loco    0       /else set plus1 = 0
+        jump    cont
+neg     loco    0x40
+cont    stod    plus1
+loop    lodd    cnt
+        subd    (1)
+        stod    cnt
+        jneg    done
+        call    ashr2   /shift S to right
+        lodl    0
+        pshi
+        pop             /ac = *S
+        actf
+        loco    0x20    /guard bit mask
+        andf            /check if guard bit is 1
+        jzer    loop    /if 1 fell off, plus1 (will add 1 back on if S is negative)
+        ftac
+        addd    plus1   /add the 1 back on (provided S is negative)
+        push
+        lodl    1       /grab &S
+        popi            /*S = *S + plus1
+        jump    loop
+/nofall  ftac            /if no 1 fell off, just store S
+/       stod    res
+/       jump    loop
+/done    lodd    res
+/        push            /store result
+/        lodl    2       /load S's address
+/        popi            /pop result into S's address
+done    insp    1    
+        retn
+        END
+
+
